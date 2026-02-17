@@ -239,7 +239,9 @@ async function savePathEdits() {
             viewPath(currentPathId);
             loadPaths();
         } else {
-            alert('Error updating path');
+            const errorData = await response.json().catch(() => ({}));
+            const errorMsg = errorData.error || 'Failed to update path';
+            alert(`Error updating path: ${errorMsg}`);
         }
     } catch (error) {
         alert('Error updating path: ' + error.message);
@@ -260,7 +262,9 @@ async function deletePath(pathId) {
             closeDetails();
             loadPaths();
         } else {
-            alert('Error deleting path');
+            const errorData = await response.json().catch(() => ({}));
+            const errorMsg = errorData.error || 'Failed to delete path';
+            alert(`Error deleting path: ${errorMsg}`);
         }
     } catch (error) {
         alert('Error deleting path: ' + error.message);
