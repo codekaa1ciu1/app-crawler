@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  web-portal:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./screenshots:/app/screenshots
+      - ./crawler_paths.db:/app/crawler_paths.db
+    environment:
+      - FLASK_APP=web_portal/app.py
+      - FLASK_ENV=production
+    restart: unless-stopped
+
+  # Note: Appium needs to run on host machine or in a separate container
+  # with device/emulator access

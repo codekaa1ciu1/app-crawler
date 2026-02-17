@@ -32,7 +32,7 @@ setup(
     install_requires=requirements,
     entry_points={
         "console_scripts": [
-            "app-crawler=example_crawl:main",
+            "app-crawler=cli:main",
         ],
     },
 )

@@ -111,6 +111,45 @@ python app.py
 
 Then open http://localhost:5000 in your browser to view and manage paths.
 
+## 🖥️ Command Line Interface
+
+The crawler includes a powerful CLI for easy access to all features:
+
+### List All Paths
+```bash
+python cli.py list
+```
+
+### Start a New Crawl
+```bash
+python cli.py crawl \
+  --platform android \
+  --app-package com.example.app \
+  --app-activity .MainActivity \
+  --name "My Test Crawl" \
+  --description "Testing main features" \
+  --max-steps 50
+```
+
+### Replay a Path
+```bash
+python cli.py replay path_abc123 \
+  --platform android \
+  --app-package com.example.app \
+  --app-activity .MainActivity \
+  --delay 2.0
+```
+
+### Show Path Details
+```bash
+python cli.py info path_abc123 --show-steps
+```
+
+### Start Web Portal
+```bash
+python cli.py web --port 5000
+```
+
 ## 📖 Detailed Documentation
 
 ### Project Structure
