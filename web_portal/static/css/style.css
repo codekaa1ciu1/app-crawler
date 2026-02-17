@@ -1,0 +1,371 @@
+/* App Crawler Web Portal Styles */
+
+:root {
+    --primary-color: #4CAF50;
+    --secondary-color: #2196F3;
+    --danger-color: #f44336;
+    --text-color: #333;
+    --bg-color: #f5f5f5;
+    --card-bg: #ffffff;
+    --border-color: #ddd;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 30px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+header h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+header p {
+    font-size: 1.2em;
+    opacity: 0.9;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.section-header h2 {
+    font-size: 1.8em;
+    color: var(--text-color);
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: all 0.3s;
+    font-weight: 500;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #45a049;
+}
+
+.btn-secondary {
+    background-color: #757575;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #616161;
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #da190b;
+}
+
+.btn-small {
+    padding: 5px 10px;
+    font-size: 0.9em;
+    margin-left: 5px;
+}
+
+.paths-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+}
+
+.path-card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.path-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.path-card h3 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+    font-size: 1.4em;
+}
+
+.path-card .path-meta {
+    color: #666;
+    font-size: 0.9em;
+    margin-bottom: 10px;
+}
+
+.path-card .platform-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 0.85em;
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.platform-badge.android {
+    background-color: #a4c639;
+    color: white;
+}
+
+.platform-badge.ios {
+    background-color: #007aff;
+    color: white;
+}
+
+.path-card .step-count {
+    font-weight: bold;
+    color: var(--secondary-color);
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    font-size: 1.2em;
+}
+
+.path-details {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 30px;
+    margin-top: 30px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.path-info {
+    margin-bottom: 30px;
+}
+
+.path-info h3 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    font-size: 1.8em;
+}
+
+.path-info .info-row {
+    display: flex;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+}
+
+.path-info .info-label {
+    font-weight: bold;
+    width: 150px;
+    color: #666;
+}
+
+.path-info .info-value {
+    flex: 1;
+}
+
+.edit-form {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #666;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+.steps-container {
+    margin-top: 30px;
+}
+
+.steps-container h3 {
+    color: var(--secondary-color);
+    margin-bottom: 20px;
+    font-size: 1.6em;
+}
+
+.step-item {
+    background: #f9f9f9;
+    border-left: 4px solid var(--secondary-color);
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+}
+
+.step-item .step-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.step-item .step-number {
+    font-weight: bold;
+    color: var(--secondary-color);
+    font-size: 1.2em;
+}
+
+.step-item .action-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 0.85em;
+    font-weight: bold;
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.step-item .step-details {
+    margin-top: 10px;
+    font-size: 0.95em;
+    color: #555;
+}
+
+.step-item .ai-reasoning {
+    margin-top: 10px;
+    padding: 10px;
+    background: white;
+    border-radius: 3px;
+    font-style: italic;
+    color: #666;
+}
+
+.step-screenshot {
+    margin-top: 10px;
+    max-width: 100%;
+    cursor: pointer;
+}
+
+.step-screenshot img {
+    max-width: 300px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.interventions-container {
+    margin-top: 30px;
+}
+
+.interventions-container h3 {
+    color: var(--danger-color);
+    margin-bottom: 20px;
+    font-size: 1.6em;
+}
+
+.intervention-item {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+}
+
+.intervention-item .intervention-header {
+    font-weight: bold;
+    color: #856404;
+    margin-bottom: 10px;
+}
+
+.intervention-item .question {
+    margin: 10px 0;
+    padding: 10px;
+    background: white;
+    border-radius: 3px;
+}
+
+.intervention-item .response {
+    margin: 10px 0;
+    padding: 10px;
+    background: #e8f5e9;
+    border-radius: 3px;
+}
+
+.error-message {
+    background: #ffebee;
+    color: #c62828;
+    padding: 15px;
+    border-radius: 5px;
+    margin: 10px 0;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+}
+
+.empty-state h3 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+    .paths-container {
+        grid-template-columns: 1fr;
+    }
+    
+    header h1 {
+        font-size: 1.8em;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .section-header button {
+        margin-top: 10px;
+    }
+}
