@@ -212,3 +212,7 @@ crawler_paths.db-journal
 screenshots/
 *.db
 *.db-journal
+
+/logs/
+/app_for_testing/
+

@@ -175,7 +175,7 @@ function createStepItem(step) {
             ` : ''}
             ${step.screenshot_path ? `
             <div class="step-screenshot">
-                <img src="/screenshots/${step.screenshot_path.split('/').slice(-2).join('/')}" 
+                <img src="/screenshots/${step.screenshot_path}" 
                      alt="Screenshot step ${step.step_number}"
                      onclick="window.open(this.src, '_blank')">
             </div>

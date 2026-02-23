@@ -13,7 +13,10 @@ app = Flask(__name__)
 CORS(app)
 
 # Initialize database
-db = CrawlerDatabase()
+# Use project root crawler_paths.db so running from web_portal works
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+db_path = os.path.join(project_root, 'crawler_paths.db')
+db = CrawlerDatabase(db_path)
 
 
 @app.route('/')
@@ -74,6 +77,17 @@ def delete_path(path_id):
         return jsonify({"error": "Path not found"}), 404
 
 
+@app.route('/api/paths/<path_id>/close', methods=['POST'])
+def close_path(path_id):
+    """Close an active path (set is_active=0)."""
+    success = db.set_path_active(path_id, False)
+    
+    if success:
+        return jsonify({"message": "Path closed successfully"})
+    else:
+        return jsonify({"error": "Path not found"}), 404
+
+
 @app.route('/api/paths/<path_id>/steps', methods=['GET'])
 def get_path_steps(path_id):
     """Get all steps for a path."""
@@ -91,4 +105,4 @@ def serve_screenshot(filename):
 if __name__ == '__main__':
     import os
     debug_mode = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
-    app.run(debug=debug_mode, host='0.0.0.0', port=5000)
+    app.run(debug=debug_mode, host='0.0.0.0', port=5050)

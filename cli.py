@@ -183,7 +183,7 @@ def main():
     crawl_parser.add_argument('--appium-server', default='http://localhost:4723',
                              help='Appium server URL')
     crawl_parser.add_argument('--ai-provider', default='openai',
-                             choices=['openai', 'anthropic'],
+                             choices=['openai', 'anthropic', 'qwen'],
                              help='AI provider')
     crawl_parser.add_argument('--name', required=True,
                              help='Name for this crawl')

@@ -9,6 +9,7 @@ An intelligent mobile application crawler that uses AI to automatically explore 
 - 📱 **Cross-Platform**: Supports both Android and iOS via Appium
 - 💾 **Path Recording**: Saves all interaction paths to SQLite database
 - 🔄 **Replay Functionality**: Replay any saved path to reproduce user flows
+- 🔄 **Smart Resume**: Automatically resumes crawling from where it left off for each app
 - 🌐 **Web Portal**: View and manage all crawler paths through a beautiful web interface
 - 👤 **Human-in-the-Loop**: AI can request human help when it gets stuck
 - 📸 **Screenshot Capture**: Automatically captures screenshots at each step
@@ -24,6 +25,7 @@ An intelligent mobile application crawler that uses AI to automatically explore 
 6. ✅ Web portal to view all paths
 7. ✅ Web portal to manage paths (edit name, description, delete)
 8. ✅ Human intervention when AI needs help
+9. ✅ **Resume crawling**: Single path per app, resume from last step across runs
 
 ## 🚀 Quick Start
 
@@ -211,6 +213,8 @@ Stores metadata about crawler paths.
 | created_at | TIMESTAMP | Creation time |
 | updated_at | TIMESTAMP | Last update time |
 | description | TEXT | Optional description |
+| is_active | INTEGER | Whether path is active (1) or closed (0) |
+| last_step_number | INTEGER | Last completed step number |
 
 #### `path_steps` Table
 Stores individual steps in each path.
@@ -266,10 +270,61 @@ The web portal provides a REST API:
 | `/api/paths/<id>` | GET | Get path details |
 | `/api/paths/<id>` | PUT | Update path metadata |
 | `/api/paths/<id>` | DELETE | Delete path |
+| `/api/paths/<id>/close` | POST | Close active path (set is_active=0) |
 | `/api/paths/<id>/steps` | GET | Get path steps |
 | `/screenshots/<path>` | GET | Serve screenshots |
 
 ## 🔧 Advanced Usage
+
+### Resume Functionality
+
+The crawler now maintains **single path per app** and **automatically resumes** crawling from the last step across runs:
+
+#### How It Works
+1. **First Run**: Creates a new path for the app package
+2. **Subsequent Runs**: Automatically resumes the existing active path
+3. **State Recovery**: Reconstructs explored state signatures from saved steps
+4. **Incremental Discovery**: Adds new steps to the existing path without repeating covered areas
+
+#### Example Usage
+```python
+# First run - discovers steps 1-5
+crawler = AppCrawler(platform="android", app_package="com.example.app")  
+crawler.start_crawl("Explore App", max_steps=5)
+
+# Second run - automatically resumes and continues from step 6
+crawler.start_crawl("Continue Exploration", max_steps=10)  # Will add steps 6-10
+
+# Third run - resumes again from step 11
+crawler.start_crawl("Final Pass", max_steps=15)  # Will add steps 11-15
+```
+
+#### Manual Path Management
+```python
+# Close a path manually (future runs will create new path)
+crawler.db.set_path_active("path_12345678", False)
+
+# Check active path for an app
+active_path = crawler.db.get_active_path_for_app("com.example.app")
+if active_path:
+    print(f"Active path: {active_path['path_id']} with {active_path['last_step_number']} steps")
+
+# Force create new path (when no active path exists)
+new_path_id = crawler.db.create_or_get_active_path(
+    app_package="com.example.app",
+    name="Fresh Start", 
+    platform="android"
+)
+```
+
+#### Web Portal Path Closure
+Use the web portal to manually close active paths:
+```bash
+# Via API
+curl -X POST http://localhost:5050/api/paths/path_12345678/close
+
+# Or use the web interface at http://localhost:5050
+```
 
 ### Custom Human Intervention Handler
 
@@ -287,6 +342,13 @@ def advanced_human_callback(question, state):
     
     response = input("\nYour response: ")
     return response
+
+# Use with crawler
+crawler.start_crawl(
+    "Advanced Crawl", 
+    human_callback=advanced_human_callback
+)
+```
 ```
 
 ### Using Different AI Providers

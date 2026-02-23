@@ -29,7 +29,7 @@ class CrawlerConfig:
     ai_model: Optional[str] = None  # Optional override
     
     # Crawler settings
-    max_steps: int = 50
+    max_steps: int = 500
     step_delay: float = 2.0
     screenshot_enabled: bool = True
     
