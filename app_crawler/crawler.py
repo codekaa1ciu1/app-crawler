@@ -396,39 +396,62 @@ class AppCrawler:
         
         return edge_id
     
-    def _detect_journey_cycle(self) -> Optional[str]:
-        """Detect if current path forms a cycle and create journey record.
-        
+    def _detect_journey_cycle(self, target_node_id: str = None) -> Optional[str]:
+        """Detect if navigating to target_node_id (or the current node) forms a cycle.
+
+        A cycle is recorded when we are about to visit a node that already appears
+        earlier in ``current_journey_path``.  After recording the cycle the journey
+        tracking is reset so that subsequent exploration starts a fresh journey.
+
+        Args:
+            target_node_id: The node we are about to transition *to*.  When provided
+                the check is performed against the full journey path.  When omitted
+                the current node is checked against all path entries *except* the
+                last one (because the current node was just appended there).
+
         Returns:
-            Journey ID if cycle detected, None otherwise
+            Journey ID if a cycle was detected and recorded, None otherwise.
         """
-        if not self.current_journey_path or len(self.current_journey_path) < 2:
+        if not self.current_journey_path:
             return None
-        
-        current_node = self.current_node_id
-        if current_node in self.current_journey_path:
-            # Cycle detected!
-            cycle_start_index = self.current_journey_path.index(current_node)
-            cycle_nodes = self.current_journey_path[cycle_start_index:]
-            cycle_edges = self.current_edge_path[cycle_start_index:]
-            
-            # Create journey record
-            journey_id = self.db.create_journey(
-                app_package=self.app_package,
-                start_node_id=current_node,
-                end_node_id=current_node,
-                path_edges=cycle_edges,
-                journey_type='cycle'
-            )
-            
-            try:
-                self.logger.info(f"🔄 CYCLE DETECTED! Journey: {journey_id} ({len(cycle_nodes)} nodes)")
-            except:
-                print(f"🔄 CYCLE DETECTED! Journey: {journey_id} ({len(cycle_nodes)} nodes)")
-            
-            return journey_id
-        
-        return None
+
+        if target_node_id is not None:
+            # Check whether the destination node was already visited in this journey
+            check_node = target_node_id
+            search_path = self.current_journey_path
+        else:
+            # Fallback: check whether the node we are currently on appeared earlier
+            # (all entries before the last one, which is self.current_node_id itself)
+            check_node = self.current_node_id
+            search_path = self.current_journey_path[:-1]
+
+        if not search_path or check_node not in search_path:
+            return None
+
+        # Cycle detected!
+        cycle_start_index = self.current_journey_path.index(check_node)
+        cycle_nodes = self.current_journey_path[cycle_start_index:]
+        cycle_edges = self.current_edge_path[cycle_start_index:] if len(self.current_edge_path) > cycle_start_index else []
+
+        # Create journey record
+        journey_id = self.db.create_journey(
+            app_package=self.app_package,
+            start_node_id=check_node,
+            end_node_id=check_node,
+            path_edges=cycle_edges,
+            journey_type='cycle'
+        )
+
+        try:
+            self.logger.info(f"🔄 CYCLE DETECTED! Journey: {journey_id} ({len(cycle_nodes)} nodes in cycle)")
+        except:
+            print(f"🔄 CYCLE DETECTED! Journey: {journey_id} ({len(cycle_nodes)} nodes in cycle)")
+
+        # Reset journey tracking so the next exploration begins a fresh path
+        self.current_journey_path = [self.current_node_id]
+        self.current_edge_path = []
+
+        return journey_id
 
     def _execute_all_actions_on_current_state(self, actions: List[Dict[str, Any]], starting_state_hash: str) -> List[Dict[str, Any]]:
         """Execute each actionable element on current screen and observe results.
@@ -548,14 +571,14 @@ class AppCrawler:
                     # Track edge in current journey path
                     if is_valid_path and target_node_id:
                         self.current_edge_path.append(edge_id)
-                        
-                        # Check for cycle detection
-                        cycle_journey = self._detect_journey_cycle()
+
+                        # Check for cycle: does navigating to target_node_id revisit a prior node?
+                        cycle_journey = self._detect_journey_cycle(target_node_id)
                         if cycle_journey:
                             try:
-                                self.logger.info(f"🎉 Completed journey cycle: {cycle_journey}")
+                                self.logger.info(f"🎉 Completed journey cycle: {cycle_journey} — ending current branch")
                             except:
-                                print(f"🎉 Completed journey cycle: {cycle_journey}")
+                                print(f"🎉 Completed journey cycle: {cycle_journey} — ending current branch")
                 
                 result = {
                     'action': action,
@@ -1048,10 +1071,14 @@ class AppCrawler:
             
             # If we're in a different node, update our tracking
             if current_state_node != self.current_node_id:
+                # Update current_node_id first so _detect_journey_cycle uses it for the reset
                 self.current_node_id = current_state_node
-                self.current_journey_path.append(current_state_node)
+                cycle_journey = self._detect_journey_cycle(current_state_node)
+                if not cycle_journey:
+                    # No cycle: extend the current journey path
+                    self.current_journey_path.append(current_state_node)
                 current_node_exploration_needed = True
-                
+
                 try:
                     self.logger.info(f"📍 Moved to graph node: {self.current_node_id}")
                 except:
@@ -1193,9 +1220,13 @@ class AppCrawler:
                     
                     # Update graph tracking after successful navigation
                     if next_node_id:
+                        # Update current_node_id first so _detect_journey_cycle uses it for the reset
                         self.current_node_id = next_node_id
-                        self.current_journey_path.append(next_node_id)
-                        
+                        cycle_journey = self._detect_journey_cycle(next_node_id)
+                        if not cycle_journey:
+                            # No cycle: extend the current journey path
+                            self.current_journey_path.append(next_node_id)
+
                         try:
                             self.logger.info(f"✅ Successfully navigated to node: {next_node_id}")
                         except:
