@@ -1037,6 +1037,49 @@ class AppCrawler:
         discovered_states_to_explore = deque()  # Queue of states to explore
         
         while self.step_count < max_steps:
+            # --- App crash or background detection ---
+            try:
+                if self.platform == "android":
+                    # If driver is gone or activity is None, app likely crashed or backgrounded
+                    if not self.driver or not hasattr(self.driver, "current_activity"):
+                        self.logger.error("Appium driver lost. App may have crashed or been killed.")
+                        print("❌ Appium driver lost. App may have crashed or been killed.")
+                        self.disconnect()
+                        raise SystemExit(1)
+                    current_activity = self.driver.current_activity
+                    if current_activity is None or current_activity == "":
+                        self.logger.error("App is not in foreground (activity is None). App may be backgrounded or crashed.")
+                        print("❌ App is not in foreground (activity is None). App may be backgrounded or crashed.")
+                        self.disconnect()
+                        raise SystemExit(1)
+                    # Optionally, check if current_activity is not your app's activity
+                    if self.app_activity and current_activity != self.app_activity:
+                        self.logger.error(f"App is not in expected activity: {current_activity}. App may be backgrounded or crashed.")
+                        print(f"❌ App is not in expected activity: {current_activity}. App may be backgrounded or crashed.")
+                        self.disconnect()
+                        raise SystemExit(1)
+                elif self.platform == "ios":
+                    # For iOS, check if driver is alive (Appium will throw if not)
+                    if not self.driver:
+                        self.logger.error("Appium driver lost. App may have crashed or been killed.")
+                        print("❌ Appium driver lost. App may have crashed or been killed.")
+                        self.disconnect()
+                        raise SystemExit(1)
+                    # Try to get page source as a proxy for app being alive/foreground
+                    try:
+                        _ = self.driver.page_source
+                    except Exception as e:
+                        self.logger.error(f"App may be backgrounded or crashed: {e}")
+                        print(f"❌ App may be backgrounded or crashed: {e}")
+                        self.disconnect()
+                        raise SystemExit(1)
+            except SystemExit:
+                raise
+            except Exception as e:
+                self.logger.error(f"Error during app state check: {e}")
+                print(f"❌ Error during app state check: {e}")
+                self.disconnect()
+                raise SystemExit(1)
             print(f"\n--- Crawl Session {self.step_count + 1} ---")
             
             # Wait for page to load
